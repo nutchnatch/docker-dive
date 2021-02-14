@@ -1,0 +1,14 @@
+Docker training:
+	- https://labs.play-with-docker.com/
+
+
+Install docker on windows:
+	- After havinf windows container installed, use the following commands:
+		$ Install-Module DockerProvider -Force
+		$ Install-Package Docker -ProviderName DockerProvider -Force
+
+Install docker on Linux:
+	- Use the following command:
+		$ wget -qO- https://get.docker.com/ | sh
+	- Add user account:
+		$ sudo usermod -aG docker ubuntu

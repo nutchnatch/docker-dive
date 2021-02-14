@@ -1,0 +1,99 @@
+Container
+	- Isolated area of an OS with resource usage limits applied
+	- contains
+	 	+ namespaces (about isolation)
+	 		- similar to Hypervisor
+	 			which runs in the bare metal
+	 			on top of it, you create VM
+	 		- namespaces takes a single OS with its resources, which is high level construct
+	 			+ file system
+	 			+ process trees an uses
+	 			+ and all of that into multiple virtual OS, called CONTAINER
+	 		- each container has:
+	 			+ containerized or virtual root files system
+	 			+ process tree
+	 			+ zero interface
+	 		- while a VM looks like a phisical server,
+	 			a container looks exaclty a regular OS, but it is not
+	 		- container runs on top of OS, but everything is isolated
+
+	 		- container is an isolated collection of
+	 			* lunix namespaces
+	 				+ process ID (pid)
+	 				+ network (net) - isolated rooting table
+	 				+ file system/mount (mnt)
+	 				+ inter-proc comms (ipc) - processes in container share the same shared memory
+	 				+ UTS (uts) - give every container its host name
+	 				+ user (user) - user namespace - map accounts inside the container to different users in the host
+	 					- ex: maps root user to a non-previledged user in the host
+	 			* it is an isolated group
+	 				- pid, net, mnt, ipc, uts, user
+	 				- process tree in one container os not seen in other containers
+	 		
+	 		* between them is Docker Engine
+
+	 	+ control groups [c-groups] (setting groups in certain limits)
+	 		+ control the consumption of system resources
+	 	+ layers (union file system/mount)
+	- Docker Engine
+		+ CLI -> API -> daemon -> containerid -> containerd -> OCI
+		+ history:
+			- docker first came from a company named dotCloud
+			- first it was lxc + dc
+			- changed lxc by libContainer
+			- dc became docker
+			- docker became a monolith
+				+ which was slow
+				+ it had its own orchestrator, which was competing with kubernetes orchestrator
+				+ then docker went into a refactory
+				+ open container initiative started (to standsrd those concepts)
+					- imafe spec
+					- runtime spec
+		+ new structure:
+			- client
+				+ commands like "docker run"
+			- deamon
+				+ implements REST API
+			- container d
+				+ container supervisor; 
+				+ execution of lifecycle operations
+					- start, stop, pause
+			- OCI
+				+ does the interface with the kernel
+		+ Linux:
+			1- client asks deamon for a new container
+			2- daemon get containerd to start and manage a container
+			3- runc at OCI level builds them
+				 - impolementation of OCI spec
+				 - default runtime for a vanilla installtion of docker
+		+ windows:
+			1- client
+			2- daemon
+			3- compute services
+
+			- widows docker version has two kinds of containers:
+				+ native container
+					- uses namespaces for isolation and share the host's kernel
+				+ hyoer-V container
+					- has its own vm inside, does not use host's kernel, which can have windows or windows inside
+					- to run in hyper-v, we use the following command:
+						$ docker container run  --isolation=hyperv
+					- to run in hyper-v, we keep the option off:
+		+ even if the underlying architecture is different, the daemon is the same, so the experience is the same
+
+		+ examples:
+			- create a new container
+				$ docker container run ...
+				it creates a {REST} POST /vX.X/containers/create HTTP/1.1
+				- daemon does not how to create a container (all that implementation lies in containerd)
+					+ call a {GRPC} client.NewContainer(Context...) on a local unix 
+					socket
+				- containerd created a shim process, then call OCI(runc) to definitely create a container
+					+ it can creates many shims processes, one for each container
+				- OCI is transparent to conteinerd, meaning that it can be implemented by any other OCI runtine. 
+				- architecure is moduler, composable, reusable
+				- whith this decoupling, we can restart daemon, without affecting containers, when it starts up, it just connects to existing containers
+
+
+	Recap:
+		- 
