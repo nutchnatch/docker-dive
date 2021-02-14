@@ -1,0 +1,68 @@
+Image
+	- read only template to create application containers
+	- inside of it, there are all the code and files to run an application
+	- image is a built time cunstruct
+		+ image is a stoped container
+		+ has a manifest (config file - json files) saying how things fit together
+		+ images are stored in a registry (docker default to docker-hub)
+			$ docker image pull - pull image to local host
+	- container is a run time construct
+		+ image are RO (read only)
+		+ container cfeate a writable layer
+			- any write that contaniner needs to make, is done here
+			- relationship with image - one writable layer per container
+
+	- examples
+		+ pull image
+			$ docker image pull redis
+				- pull command generates an API request to the docker registry
+				- layers (image is not a single object, but a bunch of layers):
+					45b42c59be33: Pull complete 
+					5ce2e937bf62: Pull complete 
+					2a031498ff58: Pull complete 
+					78f77a50d3fe: Pull complete 
+					60553ab7cb08: Pull complete 
+					68240431d2fc: Pull complete 
+
+					+ layers are connected by a manifest file (config file)
+						- each layer has no reference to another layer
+				- get system info
+					$ docker system info
+						+ get the fat manifest
+						+ get os cpu architecture: 
+							OSType: linux
+ 							Architecture: x86_64
+ 						+ get image manifest
+ 						+ pass it to the list of layers
+ 							- they are then downloaded from registry 
+ 			- content addressable storage (docker 1.10)
+ 				+ every layer has a bunch of files and steps inside
+ 				+ create a hash value for that content and use it for the image id
+ 					- that way we can say: registry , gove me the image with this perticulary hash
+ 				+ this provides more security
+ 					"Layers": [
+                		"sha256:9eb82f04c782ef3f5ca25911e60d75e441ce0fe82e49f0dbf02c81a3161d1300",
+
+            $ docker image ls - show images
+            $ docker image ls --digests -> show the hash
+            + behind the scene, there is a storage driver pulling all the layering together
+            	Storage Driver: overlay2
+  					Backing Filesystem: extfs
+  				Docker Root Dir: /var/lib/docker
+	  	- layers:
+	  		+ Base layer (OS files & objects)
+	  		+ runs over whenever kernel is in host
+	  		+ on top of thar layer, we add other app layer (app code)
+	  		+ all those layers will have the same file system
+	  		+ those layers are represented in the file system:
+	  			- linux: /var/lib/docker/aufs/diff
+	  			- windows: c:\program data\docker\windows\filter
+	  			- macos: ~/Library/Containers/com.docker.docker/Data/vms/0/
+	  		+ if we check the content of the base layer file system, it is a file system as linux
+
+	  	- history of how image was built:
+	  		$ docker history redis
+
+	  		- delete image:
+	  			$ docker image rm redis
+	
